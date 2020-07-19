@@ -17,39 +17,43 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
-    var expression : [Character] = ["0",]
-    var numArr : [Int] = []
+    var numArr : [Int] = [0,]
     var signArr : [Character] = []
-    var temp : [Character] = []
+    var count : Int = 0
+    var lastChar : Character = "0"
     
     func input(_ num : Character) -> Void {
-        if expression[0] == "0" {
-            expression.remove(at: 0)
-            Value.text! = String(num)
+        
+        if Value.text == "0" {
+            Value.text = String(num)
         }
         else {
             Value.text! += String(num)
         }
-        expression.append(contentsOf: String(num))
-        temp.append(contentsOf: String(num))
+        
+        if num == "+" || num == "-" || num == "×" || num == "÷"{
+            if lastChar == "+" || lastChar == "-" || lastChar == "×" || lastChar == "÷" {
+                let temp : String = String((Value.text!.dropLast(2)))
+                Value.text = temp
+                Value.text! += String(num)
+                signArr[signArr.count-1] = num
+            }
+            else {
+                signArr.append(num)
+                sign()
+            }
+        }
+        else{
+            numArr[count] = numArr[count] * 10 + Int(String(num))!
+        }
+        lastChar = num
     }
     
-    func sign(_ char : Character) -> Void {
-        let max : Int = temp.count - 2
-        var i : Int = max
-        var count = 1
-        
-        while i>=0 {
-            count += 1
-            numArr.append(Int(String(temp[i]))!*tenSquared(count))
-            i -= 1
-        }
-        signArr.append(char)
-        
-        for _ in 0..<temp.count {
-            temp.remove(at: 0)
-        }
+    func sign() -> Void {
+        count += 1
+        numArr.append(0)
     }
+    
     
     @IBAction func one(_ sender: Any) {
         input("1")
@@ -83,72 +87,68 @@ class ViewController: UIViewController {
     }
     @IBAction func plus(_ sender: Any) {
         input("+")
-        sign("+")
     }
     @IBAction func minus(_ sender: Any) {
-        input("-")
-        sign("-")
-    }
+        input("-")    }
     @IBAction func multiply(_ sender: Any) {
         input("×")
-        sign("×")
     }
     @IBAction func division(_ sender: Any) {
-        input("÷")
-        sign("÷")
-    }
+        input("÷")    }
     
     @IBAction func AC(_ sender: Any) {
-        for _ in 0..<expression.count {
-            expression.remove(at: 0)
+        for _ in 0..<numArr.count {
+            numArr.remove(at: 0)
         }
-        expression.append(contentsOf: "0")
+        for _ in 0..<signArr.count {
+            signArr.remove(at: 0)
+        }
+        numArr.append(0)
         Value.text = String(0)
+        count = 0
     }
     
     @IBAction func equalSign(_ sender: Any) {
-        for var i in 0..<signArr.count-1{
-            switch signArr[i] {
-            case "×":
-                numArr[i+1] *= numArr[i]
-                numArr.remove(at: i)
-                signArr.remove(at: i)
-                i -= 1
-            case "÷":
-                numArr[i+1] /= numArr[i]
-                numArr.remove(at: i)
-                signArr.remove(at: i)
-                i -= 1
-            default:
-                continue
-            }
-        }
-        for var i in 0..<signArr.count{
-            switch signArr[i] {
-            case "+":
-                numArr[i+1] += numArr[i]
-                numArr.remove(at: i)
-                signArr.remove(at: i)
-                i -= 1
-            case "-":
-                numArr[i+1] -= numArr[i]
-                numArr.remove(at: i)
-                signArr.remove(at: i)
-                i -= 1
-            default:
-                continue
-            }
-        }
+            
+         var i = 0
+           
+           while i < signArr.count{
+               switch signArr[i] {
+                   case "×":
+                       numArr[i+1] = numArr[i] * numArr[i+1]
+                       numArr.remove(at: i)
+                       signArr.remove(at: i)
+                   case "÷":
+                       numArr[i+1] = numArr[i] / numArr[i+1]
+                       numArr.remove(at: i)
+                       signArr.remove(at: i)
+                   default:
+                       i += 1
+               }
+           }
+           
+           i = 0
+           
+           while i < signArr.count{
+               switch signArr[i] {
+               case "+":
+                   numArr[i+1] = numArr[i] + numArr[i+1]
+                   numArr.remove(at: i)
+                   signArr.remove(at: i)
+               case "-":
+                   numArr[i+1] = numArr[i] - numArr[i+1]
+                   numArr.remove(at: i)
+                   signArr.remove(at: i)
+               default:
+                   i += 1
+               }
+           }
         Value.text = String(numArr[0])
+        numArr.append(0)
+        count = 0
+        
     }
-    
-    func tenSquared (_ n : Int) -> Int {
-        var result : Int = 1
-        for _ in 0..<n-1 {
-            result *= 10;
-        }
-        return result
-    }
+
 
 }
 
